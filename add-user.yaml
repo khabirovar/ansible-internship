@@ -1,0 +1,42 @@
+---
+- name: add users for access in all servers
+  hosts: all
+  gather_facts: no
+  vars:
+    users:
+    - user1
+    - user2
+    - user3
+    - user4
+    - user5
+
+  tasks:
+  - name: Add users to ansible servers
+    ansible.builtin.user:
+      name: "{{ item }}"
+      password: "{{ '1qaz@WSX3edc' | password_hash('sha512') }}"
+      append: yes
+      update_password: on_create
+    with_items: "{{ users }}"
+#    run_once: true
+
+  - name: Install minimal packages
+    yum:
+      name:
+        - nano
+        - tar
+        - zip
+        - unzip
+        - curl
+        - wget
+        - net-tools
+        - mlocate
+        - yum-utils
+        - mc
+        - tmux
+      state: latest
+    when: "'ansible' in group_names"
+
+  - name: Update database for mLocate
+    command: updatedb
+    when: "'ansible' in group_names"

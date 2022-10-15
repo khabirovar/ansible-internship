@@ -1,0 +1,42 @@
+- name: Make list of files /etc/nginx/conf.d
+  find:
+    path: /etc/nginx/conf.d
+    patterns: ['*.conf']
+  register: list_of_files 
+
+- name: Initialize variable
+  set_fact:
+    paths: '' 
+
+- name: Delete verbosity and leave paths
+  set_fact:
+    paths: "{{ paths + ' ' + item.value  }}"
+  with_dict:
+    '{{ list_of_files.files }}' 
+  when: "item.key == 'path'" 
+
+- name: Ensure proxy_pass not exist
+  shell: grep -l '^proxy_pass test-[1-46-8].local;' {{ paths }}
+  args:
+    executable: /bin/bash
+  register: grep_output
+  ignore_errors: yes
+
+- debug:
+    var: grep_output
+
+- name: Add file conf if not exist
+  copy:
+    src: test.conf
+    dest: /etc/nginx/conf.d/test.conf
+    mode: '0644'
+  when: "grep_output.stdout == ''"
+
+- name: Edit file if exist
+  lineinfile:
+    path: "{{ item }}"
+    regexp: '^proxy_pass test-[1-46-8].local;'   
+    line: proxy_pass test-5.local; 
+  with_items:
+    '{{ grep_output.stdout_lines }}'
+  when: "grep_output.stdout != ''"

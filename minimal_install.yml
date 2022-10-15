@@ -1,0 +1,15 @@
+---
+- name: Install simple toolkit 
+  hosts: test-5.local
+  become: yes
+
+  tasks:
+  - name: Install epel releases
+    yum:
+      name: epel-release
+      state: latest
+
+  - name: Install htop vim tmux
+    yum: 
+      name: htop, vim, tmux
+      state: latest

@@ -1,0 +1,29 @@
+[tls]
+tls.local          ansible_connection=ssh
+
+[ci]
+gitlab.local       ansible_connection=ssh
+nexus.local        ansible_connection=ssh
+[jenkins]
+jenkins.local      ansible_connection=ssh
+
+[proj]
+jira.local         ansible_connection=ssh
+conf.local         ansible_connection=ssh
+
+[ansible]
+ansible.local      ansible_connection=local
+
+[test]
+test-5.local       ansible_connection=ssh 
+test-8.local       ansible_connection=ssh
+
+[tests]
+test-1.local       ansible_connection=ssh
+test-2.local       ansible_connection=ssh
+test-3.local       ansible_connection=ssh
+test-4.local       ansible_connection=ssh
+test-5.local       ansible_connection=ssh
+test-6.local       ansible_connection=ssh
+test-7.local       ansible_connection=ssh
+test-8.local       ansible_connection=ssh

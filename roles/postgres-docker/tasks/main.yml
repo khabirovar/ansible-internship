@@ -1,0 +1,44 @@
+- name: Install epel-release
+  yum: 
+    name: epel-release
+    state: installed
+
+
+- name: Install dependencies for docker module
+  yum:
+    name: python-urllib3
+    state: installed
+
+- name: Install docker module
+  pip:
+    name: 
+     - docker==4.4.4
+     - requests==2.2.1
+    
+
+- name: Login on docker hub
+  docker_login:
+    username: ahabirov
+    password: "{{ dckr_pass }}"
+
+- name: Pull docker image
+  docker_image:
+    name: "unterdata/postgresql12:centos7.9"
+    source: pull
+ 
+- name: Check dir 
+  file: 
+    path: "{{ src_volume }}" #"/data/postgres/docker/data"
+    state: directory
+    mode: '0755'
+  
+- name: Run docker container
+  docker_container:
+    auto_remove: yes
+    image: "unterdata/postgresql12:centos7.9"
+    mounts: 
+      - source: "/data/postgres/docker/data"  #"{{ src_volume }}"
+        target: "/mnt" #"{{ trg_volume }}"
+    name: postgresql12
+    network_mode: bridge
+

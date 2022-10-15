@@ -1,0 +1,9 @@
+---
+- name: Test connection to server test-5.local
+  hosts: test-5.local
+  user: ahabirov
+
+  tasks:
+    
+  - name: Ping server
+    ping:

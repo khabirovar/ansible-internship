@@ -1,0 +1,6 @@
+---
+baseurl: "http://nginx.org/packages/centos/$releasever/$basearch"
+user_name: nginx
+processes: auto
+error_log: /var/log/nginx/error.log
+root_location: /usr/share/nginx/html
