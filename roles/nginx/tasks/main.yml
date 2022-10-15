@@ -1,0 +1,47 @@
+- name: Add official repo
+  copy:
+    dest: /etc/yum.repos.d/nginx.repo
+    content: |
+      [nginx]
+      name=nginx
+      baseurl= "{{ baseurl }}"
+      gpgcheck=0
+      enabled=1
+
+- name: Enable repo
+  yum_repository:
+    name: nginx
+    enabled: yes
+    description: nginx repo
+    baseurl: "{{ baseurl }}"
+    gpgcheck: no
+
+- name: Install nginx
+  yum:
+    name: nginx
+    state: installed
+  notify: Start nginx
+
+- name: Install configuration from template
+  template: 
+    src: nginx.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Replace index.html
+  copy:
+    src: index.html
+    dest: "{{ root_location }}/index.html"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload nginx
+
+- name: Open port on firewall
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+  notify: Reload firewalld

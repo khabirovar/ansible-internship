@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Host: test-5.local </title>
+</head>
+<body bgcolor="black" text="darkgreen" onload="addLetter()">
+  <h1 id="header" align="center"></h1>
+  <script>
+    let i = 0;
+    const msg = 'Nginx deployed on this host by Aidar Khabirov';
+    const header = document.querySelector('#header');
+
+    function addLetter() {
+      if (i < msg.length) {
+        header.innerHTML += msg.charAt(i);
+        i++;
+        setTimeout(addLetter, 100);
+      }
+    }
+  </script>
+</body>
+</html>
+

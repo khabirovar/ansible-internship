@@ -1,0 +1,39 @@
+- name: Install yum-utils
+  yum:
+    name: yum-utils
+    state: installed
+
+- name: Download repo file
+  get_url: 
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+
+- name: Enable edge repo
+  ini_file:
+    dest: /etc/yum.repos.d/docker-ce.repo
+    section: 'docker-ce-edge'
+    option: enabled
+    value: 0
+
+- name: Install docker-ce
+  yum:
+    name:
+      - docker-ce-20.10.7
+      - docker-ce-cli-20.10.7
+      - containerd.io-1.4.6
+      - docker-compose
+    state: installed
+
+- name: Start and enable service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Try docker
+  command: docker run docker/whalesay cowsay Foo
+  register: output
+
+- name: Check output
+  debug: 
+    var: output.stdout

@@ -1,0 +1,73 @@
+---
+- name: add users for access in all servers
+  hosts: ansible, test-5.local
+  gather_facts: no
+  become: yes
+  vars:
+    user: test5
+    ssh_key_path: "/home/{{ user }}/.ssh" 
+    host_name: test-5.local
+
+
+  tasks:
+  - name: Add user on servers
+    ansible.builtin.user:
+      name: "{{ user }}"
+      password: "{{ '1qaz@WSX3edc' | password_hash('sha512') }}"
+      append: yes
+      update_password: on_create
+
+  - name: Create .ssh
+    file:
+      path: "{{ ssh_key_path }}"
+      state: directory
+      owner: "{{ user }}"
+      mode: 0700
+
+  - name: Generate key pair
+    command: ssh-keygen -q -t rsa -f "{{ ssh_key_path }}/{{ host_name }}" -C "" -N ""
+    args:
+      creates: "{{ ssh_key_path }}/{{ host_name }}" 
+    when: "'ansible' in group_names"
+
+  - name: Edit owner and rights on dir .ssh
+    file:
+      path: "{{ ssh_key_path }}"
+      state: directory
+      owner: "{{ user }}"
+      recurse: yes
+      mode: 0700
+
+  - name: Add authorized key
+    authorized_key:
+      user: "{{ user }}"
+      state: present
+      key: "{{ lookup('file', ssh_key_path+'/'+host_name+'.pub') }}"
+    when: "inventory_hostname == host_name"
+#    run_once: yes
+  
+  - name: Add user in sudoers
+    lineinfile:
+      path: /etc/sudoers
+      state: present
+      regexp: '{{ user }}'
+      line: '{{ user }} ALL=(ALL) NOPASSWD: ALL'
+      validate: /usr/sbin/visudo -cf %s
+      backup: yes
+    when: "inventory_hostname == host_name"
+
+  - name: Disable password authentication
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      state: present
+      regexp: '^PasswordAuthentication'
+      line: 'PasswordAuthentication no'
+      backup: yes
+    when: "inventory_hostname == host_name"
+    notify: Restart ssh deamon
+
+  handlers:
+  - name: Restart ssh deamon
+    service:
+      name: sshd
+      state: restarted

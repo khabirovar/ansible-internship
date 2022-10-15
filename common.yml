@@ -1,0 +1,11 @@
+---
+- hosts: test-5.local
+  become: yes
+  gather_facts: no
+  roles:
+#  - postgresql12
+#  - docker
+#  - postgres-docker
+#  - nginx
+#  - nginx-tls
+  - remove-packages
